@@ -3,12 +3,37 @@ console.clear()
 const redux = require('redux')
 const createStore = redux.createStore
 const actionBinder = redux.bindActionCreators
+const combineReducers = redux.combineReducers
+
+// initial states
+const initialCakeState = {
+    noOfCakes: 20
+}
+
+const initialIceCreamState = {
+    noOfIceCreams: 10
+}
 
 // action
 const ORDER_CAKE = 'ORDER_CAKE'
-const ADD_CAKE = 'ADD_CAKE'
-const RESTORE_CAKE = 'RESTORE_CAKE'
-// action creater
+const RESTOKE_CAKE = 'RESTOKE_CAKE'
+const ORDER_ICECREAM = 'ORDER_ICECREAM'
+const RESTOCK_ICECREAM = 'RESTOCK_ICECREAM'
+
+
+// action creaters
+const orderIceCream = () => {
+    return {
+        type: ORDER_ICECREAM
+    }
+}
+
+const restokeIceCream = (quantity) => {
+    return {
+        type: RESTOCK_ICECREAM,
+        qty: quantity
+    }
+}
 
 const orderCake = () => {
     return {
@@ -16,73 +41,78 @@ const orderCake = () => {
     }
 }
 
-const addCake = () => {
+const restokeCake = (quantity) => {
     return {
-        type: ADD_CAKE,
-    }
-}
-
-const restockCakes = (quantity) => {
-    return {
-        type: RESTORE_CAKE,
+        type: RESTOKE_CAKE,
         qty: quantity
     }
 }
 
-const initialState = {
-    numOfCakes: 10,
-}
-
-const reducer = (state = initialState, action) => {
-    switch(action.type)
-    {
-        case ORDER_CAKE:
+const iceCreamReducer = (state = initialIceCreamState, action) => {
+    switch (action.type){
+        case ORDER_ICECREAM:
             return {
                 ...state,
-                numOfCakes: state.numOfCakes - 1
+                noOfIceCreams: state.noOfIceCreams - 1
             }
             break;
 
-        case ADD_CAKE:
+        case RESTOCK_ICECREAM:
             return {
                 ...state,
-                numOfCakes: state.numOfCakes + 1
+                noOfIceCreams: state.noOfIceCreams + action.qty
             }
             break;
         
-        case RESTORE_CAKE:
-            return {
-                ...state,
-                numOfCakes: state.numOfCakes + action.qty
-            }
-
         default:
             return state
     }
+    
 }
 
+const cakeReducer = ( state = initialCakeState, action ) => {
+    switch (action.type) {
+        case ORDER_CAKE:
+            return {
+                noOfCakes: state.noOfCakes - 1
+            }
+            break;
+        
+        case RESTOKE_CAKE:
+            return {
+                noOfCakes: state.noOfCakes + action.qty
+            }
+            break;
+        
+        default:
+            return state
+    }
+} 
+
+const rootReducer = combineReducers({
+    cake : cakeReducer,
+    icecreame: iceCreamReducer
+})
+
 // createStore takes reducer function as argument
-const store = createStore(reducer)
+const store = createStore(rootReducer)
 
 // we will subscribe to store with the help of a function 
 // so that whenever any state change happens the subscribed method is callled
 store.subscribe( () => console.log(store.getState()) )  
 
 
-// changing the state with the help of dispatch function call
-// on dispatch we will send the action
-// store.dispatch(orderCake())
-// store.dispatch(orderCake())
-// store.dispatch(orderCake())
-// store.dispatch(orderCake())
-
-// store.dispatch(addCake())
-// store.dispatch(addCake())
-// store.dispatch(addCake())
-// store.dispatch(restockCakes(2))
 
 // using actionBindCreator to bind all the reducers
-const actions = actionBinder({orderCake, addCake, restockCakes}, store.dispatch)
+const actions = actionBinder({orderCake, restokeCake, orderIceCream, restokeIceCream}, store.dispatch)
 
 actions.orderCake()
-actions.restockCakes(10)
+actions.orderCake()
+actions.orderCake()
+actions.orderCake()
+actions.restokeCake(10)
+actions.orderIceCream()
+actions.orderIceCream()
+actions.orderIceCream()
+
+
