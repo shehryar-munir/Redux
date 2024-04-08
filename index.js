@@ -2,10 +2,12 @@ console.clear()
 
 const redux = require('redux')
 const createStore = redux.createStore
+const actionBinder = redux.bindActionCreators
 
 // action
 const ORDER_CAKE = 'ORDER_CAKE'
 const ADD_CAKE = 'ADD_CAKE'
+const RESTORE_CAKE = 'RESTORE_CAKE'
 // action creater
 
 const orderCake = () => {
@@ -17,6 +19,13 @@ const orderCake = () => {
 const addCake = () => {
     return {
         type: ADD_CAKE,
+    }
+}
+
+const restockCakes = (quantity) => {
+    return {
+        type: RESTORE_CAKE,
+        qty: quantity
     }
 }
 
@@ -32,11 +41,19 @@ const reducer = (state = initialState, action) => {
                 ...state,
                 numOfCakes: state.numOfCakes - 1
             }
+            break;
 
         case ADD_CAKE:
             return {
                 ...state,
                 numOfCakes: state.numOfCakes + 1
+            }
+            break;
+        
+        case RESTORE_CAKE:
+            return {
+                ...state,
+                numOfCakes: state.numOfCakes + action.qty
             }
 
         default:
@@ -51,13 +68,21 @@ const store = createStore(reducer)
 // so that whenever any state change happens the subscribed method is callled
 store.subscribe( () => console.log(store.getState()) )  
 
+
 // changing the state with the help of dispatch function call
 // on dispatch we will send the action
-store.dispatch(orderCake())
-store.dispatch(orderCake())
-store.dispatch(orderCake())
-store.dispatch(orderCake())
+// store.dispatch(orderCake())
+// store.dispatch(orderCake())
+// store.dispatch(orderCake())
+// store.dispatch(orderCake())
 
-store.dispatch(addCake())
-store.dispatch(addCake())
-store.dispatch(addCake())
+// store.dispatch(addCake())
+// store.dispatch(addCake())
+// store.dispatch(addCake())
+// store.dispatch(restockCakes(2))
+
+// using actionBindCreator to bind all the reducers
+const actions = actionBinder({orderCake, addCake, restockCakes}, store.dispatch)
+
+actions.orderCake()
+actions.restockCakes(10)
